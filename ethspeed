@@ -1,0 +1,58 @@
+#!/usr/bin/python
+
+
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import subprocess
+import time
+import sys
+import os
+os.system('setterm -cursor off')
+if( len(sys.argv) == 1):
+    print "usage:   ethspeed <ethernet port>\r"
+    print "         (provides speed in MBps)"
+    print "         ethspeed <ethernet port1> <ethernet port2> . . . \r"
+    print "         (provides combined results of all ports)"
+    print "         Please provide valid ports"
+    exit()
+try:
+    while 1:
+        ethr = {}
+        etht = {}
+        eth2r = {}
+        eth2t = {}
+        for args in sys.argv:
+            if(args != sys.argv[0]):
+                ethr[args] = subprocess.Popen(['cat','/sys/class/net/'+args+'/statistics/rx_bytes'] , stdout=subprocess.PIPE).communicate()[0]
+                etht[args] = subprocess.Popen(['cat','/sys/class/net/'+args+'/statistics/tx_bytes'] , stdout=subprocess.PIPE).communicate()[0]
+
+        time.sleep(1)
+        for args in sys.argv:
+            if(args != sys.argv[0]):
+                eth2r[args] = subprocess.Popen(['cat','/sys/class/net/'+args+'/statistics/rx_bytes'] , stdout=subprocess.PIPE).communicate()[0]
+                eth2t[args] = subprocess.Popen(['cat','/sys/class/net/'+args+'/statistics/tx_bytes'] , stdout=subprocess.PIPE).communicate()[0]
+        upload = 0
+        download = 0
+        for args in sys.argv:
+            if(args != sys.argv[0]):
+                download = download + (int(eth2r[args]) - int(ethr[args]))
+                upload = upload + (int(eth2t[args]) - int(etht[args]))
+
+        download = download / float(1024)
+        upload = upload / float(1024)
+        sys.stdout.write("\033[K")
+        sys.stdout.write('\tdownload: %.4f KBps\t\tupload: %.4f KBps \r'%( download ,upload))
+        sys.stdout.flush()
+except:
+    print "\r"
