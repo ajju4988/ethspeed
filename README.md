@@ -1,7 +1,7 @@
-ethspeed
+[ethspeed](http://ajju4988.github.io/ethspeed/ )
 ========
 
-A lightweight command line ethernet speed monitor
+A lightweight command line ethernet speed monitor 
 
 
 Installation:
